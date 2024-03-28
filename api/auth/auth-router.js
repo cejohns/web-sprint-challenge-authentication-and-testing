@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { check, /*validationResult*/ } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 
 const router = express.Router();
 let users = []; // Changed to 'let' to allow modification, but not reassignment.
@@ -13,21 +13,17 @@ const userCredentialsValidation = [
   check('password').not().isEmpty().withMessage('Password is required'),
 ];
 
-/*function resetUsersDatabase() {
-  users.length = 0; // Correct way to clear the array without reassigning.
-}*/
+router.post('/register', userCredentialsValidation, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-router.post('/register', async (req, res) => {
-  //const { username, password } = req.body;
-
+  const { username, password } = req.body;
   try {
-    const { username, password } = req.body;
-    // Your logic to hash the password with bcrypt and save the user to the database
-
-    // Assuming newUser contains the newly created user object with an id
-    const newUser = await createUser(username, hashedPassword);
-
-    // Respond with the newly created user object
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+    const newUser = { id: users.length + 1, username, password: hashedPassword };
+    users.push(newUser); // Add the user to the array
     res.status(201).json(newUser);
   } catch (error) {
     console.error('Error registering user:', error);
@@ -36,10 +32,15 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', userCredentialsValidation, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { username, password } = req.body;
   const user = users.find(user => user.username === username);
   if (!user) {
-    return res.status(200).send("Invalid credentials");
+    return res.status(401).json({ message: 'Invalid credentials' });
   }
 
   try {
@@ -48,13 +49,12 @@ router.post('/login', userCredentialsValidation, async (req, res) => {
       const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
       res.json({ message: `Welcome, ${username}`, token });
     } else {
-      res.status(401).send("Invalid credentials");
+      res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send("An error occurred during login.");
+    res.status(500).json({ message: 'An error occurred during login.' });
   }
 });
 
-// Correctly exporting both the router and the function
 module.exports = router;
