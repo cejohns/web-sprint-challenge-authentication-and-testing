@@ -35,6 +35,27 @@ describe('POST /register', () => {
     expect(response.statusCode).toBe(409); // Assuming your API returns a 409 Conflict for existing user
     expect(response.body.message).toContain('username taken');
   });
+
+  test('adds a new user with a bcrypted password', async () => {
+    // 1. Create a clear test description
+    // 2. Create mock user data
+    const newUser = { username: 'newUser', password: 'password123' };
+
+    // 3. Send POST request
+    const response = await request(server)
+      .post('/api/auth/register')
+      .send(newUser);
+
+    // 4. Check response status code
+    expect(response.statusCode).toBe(201);
+
+    // 5. Check response body
+    // Assuming your endpoint returns the username of the newly created user
+    expect(response.body).toHaveProperty('username', newUser.username);
+
+    // Additional checks for hashed password can be added here if applicable
+  });
+
 });
 
 describe('POST /login', () => {

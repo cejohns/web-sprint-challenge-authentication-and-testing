@@ -18,20 +18,20 @@ const userCredentialsValidation = [
 }*/
 
 router.post('/register', async (req, res) => {
-  const { username, password } = req.body;
+  //const { username, password } = req.body;
 
   try {
-      const existingUser = await users.findBy({ username }).first();
-      if (existingUser) {
-          return res.status(400).json({ message: "Username is already taken" });
-      }
+    const { username, password } = req.body;
+    // Your logic to hash the password with bcrypt and save the user to the database
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = await users.add({ username, password: hashedPassword });
-      
-      res.status(201).json({ username: newUser.username });
-  } catch (err) {
-      res.status(500).json({ message: "There was an error registering the user" });
+    // Assuming newUser contains the newly created user object with an id
+    const newUser = await createUser(username, hashedPassword);
+
+    // Respond with the newly created user object
+    res.status(201).json(newUser);
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).json({ message: 'There was an error registering the user' });
   }
 });
 
