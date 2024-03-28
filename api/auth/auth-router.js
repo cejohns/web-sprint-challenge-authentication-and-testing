@@ -1,59 +1,60 @@
-const router = require('express').Router();
+const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { check, /*validationResult*/ } = require('express-validator');
 
-router.post('/register', (req, res) => {
-  res.end('implement register, please!');
-  /*
-    IMPLEMENT
-    You are welcome to build additional middlewares to help with the endpoint's functionality.
-    DO NOT EXCEED 2^8 ROUNDS OF HASHING!
+const router = express.Router();
+let users = []; // Changed to 'let' to allow modification, but not reassignment.
+//const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 8;
+const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
 
-    1- In order to register a new account the client must provide `username` and `password`:
-      {
-        "username": "Captain Marvel", // must not exist already in the `users` table
-        "password": "foobar"          // needs to be hashed before it's saved
+const userCredentialsValidation = [
+  check('username').not().isEmpty().withMessage('Username is required'),
+  check('password').not().isEmpty().withMessage('Password is required'),
+];
+
+/*function resetUsersDatabase() {
+  users.length = 0; // Correct way to clear the array without reassigning.
+}*/
+
+router.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+      const existingUser = await users.findBy({ username }).first();
+      if (existingUser) {
+          return res.status(400).json({ message: "Username is already taken" });
       }
 
-    2- On SUCCESSFUL registration,
-      the response body should have `id`, `username` and `password`:
-      {
-        "id": 1,
-        "username": "Captain Marvel",
-        "password": "2a$08$jG.wIGR2S4hxuyWNcBf9MuoC4y0dNy7qC/LbmtuFBSdIhWks2LhpG"
-      }
-
-    3- On FAILED registration due to `username` or `password` missing from the request body,
-      the response body should include a string exactly as follows: "username and password required".
-
-    4- On FAILED registration due to the `username` being taken,
-      the response body should include a string exactly as follows: "username taken".
-  */
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = await users.add({ username, password: hashedPassword });
+      
+      res.status(201).json({ username: newUser.username });
+  } catch (err) {
+      res.status(500).json({ message: "There was an error registering the user" });
+  }
 });
 
-router.post('/login', (req, res) => {
-  res.end('implement login, please!');
-  /*
-    IMPLEMENT
-    You are welcome to build additional middlewares to help with the endpoint's functionality.
+router.post('/login', userCredentialsValidation, async (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find(user => user.username === username);
+  if (!user) {
+    return res.status(200).send("Invalid credentials");
+  }
 
-    1- In order to log into an existing account the client must provide `username` and `password`:
-      {
-        "username": "Captain Marvel",
-        "password": "foobar"
-      }
-
-    2- On SUCCESSFUL login,
-      the response body should have `message` and `token`:
-      {
-        "message": "welcome, Captain Marvel",
-        "token": "eyJhbGciOiJIUzI ... ETC ... vUPjZYDSa46Nwz8"
-      }
-
-    3- On FAILED login due to `username` or `password` missing from the request body,
-      the response body should include a string exactly as follows: "username and password required".
-
-    4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
-      the response body should include a string exactly as follows: "invalid credentials".
-  */
+  try {
+    const match = await bcrypt.compare(password, user.password);
+    if (match) {
+      const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
+      res.json({ message: `Welcome, ${username}`, token });
+    } else {
+      res.status(401).send("Invalid credentials");
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred during login.");
+  }
 });
 
+// Correctly exporting both the router and the function
 module.exports = router;

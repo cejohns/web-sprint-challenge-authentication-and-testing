@@ -1,14 +1,27 @@
+const jwt = require('jsonwebtoken');
+
+// Assuming you have a secret key for JWT verification
+// This should be the same key used for generating the token
+const secret = process.env.JWT_SECRET || 'your_secret_key_here';
+
 module.exports = (req, res, next) => {
-  next();
-  /*
-    IMPLEMENT
+  const token = req.headers.authorization;
 
-    1- On valid token in the Authorization header, call next.
+  if (!token) {
+    return res.status(401).send("token required");
+  }
 
-    2- On missing token in the Authorization header,
-      the response body should include a string exactly as follows: "token required".
+  jwt.verify(token, secret, (err, decodedToken) => {
+    if (err) {
+      // This means the token is invalid or expired
+      return res.status(401).send("token invalid");
+    }
 
-    3- On invalid or expired token in the Authorization header,
-      the response body should include a string exactly as follows: "token invalid".
-  */
+    // Optionally, you can attach the decoded token to the request
+    // so that subsequent middleware or routing logic can use the token's payload
+    req.decodedToken = decodedToken;
+
+    // Token is valid, proceed with the request
+    next();
+  });
 };
