@@ -14,20 +14,31 @@ const userCredentialsValidation = [
 ];
 
 router.post('/register', userCredentialsValidation, async (req, res) => {
+  console.log('Starting user registration...');
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array());
     return res.status(400).json({ errors: errors.array() });
   }
 
   const { username, password } = req.body;
   try {
+    console.log('Hashing password...');
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+    console.log('Password hashed:', hashedPassword);
+
     const newUser = { id: users.length + 1, username, password: hashedPassword };
+    console.log('New user object:', newUser);
+
     users.push(newUser); // Add the user to the array
+    console.log('User added to array:', users);
+
     res.status(201).json(newUser);
+    console.log('Response sent with newUser:', newUser);
   } catch (error) {
     console.error('Error registering user:', error);
-    res.status(500).json({ message: 'There was an error registering the user' });
+    // Include error.message for debugging, remove or obscure for production
+    res.status(500).json({ message: 'There was an error registering the user', error: error.message });
   }
 });
 
