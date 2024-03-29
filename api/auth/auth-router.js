@@ -22,7 +22,6 @@ router.post('/register', userCredentialsValidation, async (req, res) => {
   }
 
   const { username, password } = req.body;
-
   try {
     // Check if the username already exists
     const existingUser = await User.findOne({ username: username });
@@ -30,7 +29,8 @@ router.post('/register', userCredentialsValidation, async (req, res) => {
       return res.status(400).json({ message: 'Username taken' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Use environment-specific bcrypt salt rounds
+    const hashedPassword = await bcrypt.hash(password, bcryptSaltRounds);
     const newUser = new User({
       username,
       password: hashedPassword
@@ -39,10 +39,10 @@ router.post('/register', userCredentialsValidation, async (req, res) => {
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully', userId: newUser._id });
   } catch (error) {
+    console.error("Registration error:", error.message); // Improved error handling
     res.status(500).json({ message: 'There was an error registering the user', error: error.message });
   }
 });
-
 // Login endpoint
 router.post('/login', userCredentialsValidation, async (req, res) => {
   const errors = validationResult(req);
