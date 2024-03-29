@@ -4,7 +4,11 @@ const server = require('../api/server');
 const bcrypt = require('bcrypt');
 const db = require('../data/dbConfig.js'); // Make sure this is the correct path to your db config
 // Mocking bcrypt for the purpose of the test
+const jokesRouter = require('./jokes/jokes-router.js');
+
 jest.mock('bcrypt');
+
+server.use('/jokes', jokesRouter);
 
 async function resetUsersDatabase() {
   await db('users').truncate();
@@ -76,6 +80,24 @@ describe('POST /login', () => {
     const response = await request(server).post('/login').send(mockUser);
     expect(response.statusCode).toBe(401);
     expect(response.text).toContain('invalid credentials');
+  });
+});
+
+describe('GET /jokes endpoint', () => {
+  test('responds with a list of jokes in JSON format', async () => {
+    const response = await request(server).get('/jokes');
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.body).toBeInstanceOf(Array);
+    // Additional assertions as needed
+  });
+
+  test('should return an array of jokes with at least one joke', async () => {
+    const response = await request(server).get('/jokes');
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body.length).toBeGreaterThan(0);
+    // Assuming each joke object at least has a 'text' field
+    expect(response.body[0]).toHaveProperty('text');
   });
 });
 
