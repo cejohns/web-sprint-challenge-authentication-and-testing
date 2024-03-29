@@ -1,27 +1,26 @@
 const jwt = require('jsonwebtoken');
 
-// Assuming you have a secret key for JWT verification
-// This should be the same key used for generating the token
-const secret = process.env.JWT_SECRET || 'your_secret_key_here';
+// Assuming 'YOUR_SECRET_KEY' is the secret key you used to sign the JWTs.
+const SECRET_KEY = 'YOUR_SECRET_KEY';
 
 module.exports = (req, res, next) => {
-  const token = req.headers.authorization;
+  // Extract the token from the Authorization header.
+  const token = req.headers.authorization?.split(' ')[1]; // Conventionally, Authorization: Bearer <token>
 
   if (!token) {
-    return res.status(401).send("token required");
+    // Token is missing from the Authorization header.
+    return res.status(401).json({ message: "token required" });
   }
 
-  jwt.verify(token, secret, (err, decodedToken) => {
+  // Verify the token.
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
     if (err) {
-      // This means the token is invalid or expired
-      return res.status(401).send("token invalid");
+      // Token is invalid or expired.
+      return res.status(401).json({ message: "token invalid" });
     }
 
-    // Optionally, you can attach the decoded token to the request
-    // so that subsequent middleware or routing logic can use the token's payload
-    req.decodedToken = decodedToken;
-
-    // Token is valid, proceed with the request
+    // Token is valid, proceed to the next middleware or route handler.
+    req.user = decoded; // Optional: Attach the decoded token to the request if you want to use it downstream.
     next();
   });
 };
