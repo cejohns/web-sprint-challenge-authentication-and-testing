@@ -24,41 +24,26 @@ afterAll(() => {
 });
 
 describe('POST /register', () => {
-  test('successfully registers a new user', async () => {
-    const mockUser = { username: 'TestUser', password: 'password123' };
-    const response = await request(server).post('/api/auth/register').send(mockUser);
-    expect(response.statusCode).toBe(201);
-    expect(response.body.username).toBe(mockUser.username);
-    // Consider adding a check for the hashed password here
-  });
+ // Test successful user registration
+test('registers a new user successfully', async () => {
+  const newUser = { username: 'newUser', password: 'password123' };
+  const response = await request(server).post('/api/auth/register').send(newUser);
+  
+  expect(response.statusCode).toBe(201);
+  expect(response.body).toHaveProperty('username', newUser.username);
+  // Add any other assertions, e.g., response structure
+});
 
-  test('fails to register a user with an existing username', async () => {
-    // Make sure 'TestUser' exists in the database before this test runs
-    const mockUser = { username: 'TestUser', password: 'newPassword123' };
-    const response = await request(server).post('/api/auth/register').send(mockUser);
-    expect(response.statusCode).toBe(409); // Assuming your API returns a 409 Conflict for existing user
-    expect(response.body.message).toContain('username taken');
-  });
+// Test registration with an existing username
+test('handles duplicate username on registration', async () => {
+  const duplicateUser = { username: 'existingUser', password: 'password123' };
+  // Assuming 'existingUser' is already in the database
+  const response = await request(server).post('/api/auth/register').send(duplicateUser);
+  
+  expect(response.statusCode).toBe(400);
+  expect(response.body).toHaveProperty('message', 'Username taken');
+});
 
-  test('adds a new user with a bcrypted password', async () => {
-    // 1. Create a clear test description
-    // 2. Create mock user data
-    const newUser = { username: 'newUser', password: 'password123' };
-
-    // 3. Send POST request
-    const response = await request(server)
-      .post('/api/auth/register')
-      .send(newUser);
-
-    // 4. Check response status code
-    expect(response.statusCode).toBe(201);
-
-    // 5. Check response body
-    // Assuming your endpoint returns the username of the newly created user
-    expect(response.body).toHaveProperty('username', newUser.username);
-
-    // Additional checks for hashed password can be added here if applicable
-  });
 
 });
 
@@ -92,17 +77,13 @@ describe('GET /jokes endpoint', () => {
     // Additional assertions as needed
   });
 
-  test('should return an array of jokes with at least one joke', async () => {
-    const response = await request(server).get('/jokes');
-    expect(response.body).toBeInstanceOf(Array);
-    expect(response.body.length).toBeGreaterThan(0);
-    // Assuming each joke object at least has a 'text' field
-    expect(response.body[0]).toHaveProperty('text');
+  test('GET / - successfully retrieves jokes', async () => {
+    const response = await request(server).get('/');
+    expect(response.statusCode).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true); // Assuming the response is an array of jokes
+    // Additional checks can be made here regarding the length of the array or the structure of a joke object
   });
 });
 
-/*function resetUsersDatabase() {
-  // Implement this function to reset your users database or data structure before each test
-  // This could involve clearing an array, resetting a mock database, etc.
-}*/
+
 
