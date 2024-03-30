@@ -8,6 +8,9 @@ const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
 
+// Adjust the bcrypt salt rounds based on the environment
+const bcryptSaltRounds = process.env.NODE_ENV === 'production' ? 10 : 6;
+
 // Validation rules for user credentials
 const userCredentialsValidation = [
   check('username').not().isEmpty().withMessage('Username is required'),
@@ -43,6 +46,7 @@ router.post('/register', userCredentialsValidation, async (req, res) => {
     res.status(500).json({ message: 'There was an error registering the user', error: error.message });
   }
 });
+
 // Login endpoint
 router.post('/login', userCredentialsValidation, async (req, res) => {
   const errors = validationResult(req);
@@ -51,7 +55,6 @@ router.post('/login', userCredentialsValidation, async (req, res) => {
   }
 
   const { username, password } = req.body;
-
   try {
     const user = await User.findOne({ username: username });
     if (!user) {
@@ -66,7 +69,8 @@ router.post('/login', userCredentialsValidation, async (req, res) => {
       res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred during login.' });
+    console.error("Login error:", error.message); // Similar error handling for login
+    res.status(500).json({ message: 'An error occurred during login.', error: error.message });
   }
 });
 
