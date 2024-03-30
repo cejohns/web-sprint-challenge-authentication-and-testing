@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 
-const User = require('../user/user-models'); // Adjust the import based on your setup
+const User = require('../user/user-model'); // Adjust the import based on your setup
 
 const router = express.Router();
 let users = []; // Changed to 'let' to allow modification, but not reassignment.
