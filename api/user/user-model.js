@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize = require('../data/connection'); // Adjust the import based on your setup
+const sequelize = require('../../data/connection'); // Adjust the import based on your setup
 
 const User = sequelize.define('user', {
   // Assuming id is auto-generated
