@@ -46,20 +46,15 @@ router.post('/login', userCredentialsValidation, async (req, res) => {
   }
 
   const { username, password } = req.body;
+  const user = usersModel.find(user => user.username === username);
+  if (!user) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
 
   try {
-    // Find the user by username
-    const users = await usersModel.findBy({ username });
-    const user = users[0]; // Assuming findBy returns an array
-
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Compare the hashed password
     const match = await bcrypt.compare(password, user.password);
     if (match) {
-      const token = jwt.sign({ userId: user.user_id }, jwtSecret, { expiresIn: '1h' });
+      const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
       res.json({ message: `Welcome, ${username}`, token });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
