@@ -5,6 +5,7 @@ const { check, validationResult } = require('express-validator');
 const usersModel = require('../users/users-model');
 
 const router = express.Router();
+//let users = []; // Changed to 'let' to allow modification, but not reassignment.
 const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
 
 const userCredentialsValidation = [
