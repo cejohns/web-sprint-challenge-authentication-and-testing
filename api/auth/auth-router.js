@@ -32,8 +32,7 @@ router.post('/register', userCredentialsValidation, async (req, res) => {
 
     // Add the new user
     const newUser = await usersModel.add({ username, password: hashedPassword });
-
-    res.status(201).json({ user_id: newUser.user_id, username: newUser.username });
+    res.status(201).json(newUser);
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ message: 'There was an error registering the user', error: error.message });
