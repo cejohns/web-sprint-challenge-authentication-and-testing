@@ -1,11 +1,12 @@
+
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
-const usersModel = require('../users/users-model');
 
 const router = express.Router();
-//let users = []; // Changed to 'let' to allow modification, but not reassignment.
+let users = []; // Changed to 'let' to allow modification, but not reassignment.
+//const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 8;
 const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
 
 const userCredentialsValidation = [
@@ -14,31 +15,43 @@ const userCredentialsValidation = [
 ];
 
 router.post('/register', userCredentialsValidation, async (req, res) => {
+  console.log('Starting user registration...');
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array());
     return res.status(400).json({ errors: errors.array() });
   }
 
   const { username, password } = req.body;
 
+  // Check if the username already exists in the users array
+  const existingUser = users.find(user => user.username === username);
+  if (existingUser) {
+    console.log('Username already exists:', username);
+    // Respond with an appropriate error message
+    return res.status(400).json({ message: 'Username taken' });
+  }
+
   try {
-    // Check if the username already exists
-    const existingUsers = await usersModel.findBy({ username });
-    if (existingUsers.length) {
-      return res.status(400).json({ message: 'Username taken' });
-    }
+    console.log('Hashing password...');
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+    console.log('Password hashed:', hashedPassword);
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = { id: users.length + 1, username, password: hashedPassword };
+    console.log('New user object:', newUser);
 
-    // Add the new user
-    const newUser = await usersModel.add({ username, password: hashedPassword });
-    res.status(201).json(newUser);
+    users.push(newUser); // Successfully adds the new user
+    console.log('User added to array:', users);
+
+    res.status(201).json(newUser); // This line should now only execute if the username is not taken
+    console.log('Response sent with newUser:', newUser);
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ message: 'There was an error registering the user', error: error.message });
   }
 });
+
+
 
 router.post('/login', userCredentialsValidation, async (req, res) => {
   const errors = validationResult(req);
@@ -47,7 +60,7 @@ router.post('/login', userCredentialsValidation, async (req, res) => {
   }
 
   const { username, password } = req.body;
-  const user = usersModel.find(user => user.username === username);
+  const user = users.find(user => user.username === username);
   if (!user) {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
