@@ -26,7 +26,7 @@ afterAll(() => {
 describe('POST /register', () => {
  // Test successful user registration
 test('registers a new user successfully', async () => {
-  const newUser = { username: 'newUser', password: 'password123' };
+  const newUser = { username: 'Ned', password: 'password123' };
   const response = await request(server).post('/api/auth/register').send(newUser);
   
   expect(response.statusCode).toBe(201);
@@ -41,7 +41,7 @@ test('handles duplicate username on registration', async () => {
   const response = await request(server).post('/api/auth/register').send(duplicateUser);
   
   expect(response.statusCode).toBe(400);
-  expect(response.body).toHaveProperty('message', 'Username taken');
+  expect(response.body).toHaveProperty('message', 'Username already exists');
 });
 
 
@@ -50,7 +50,7 @@ test('handles duplicate username on registration', async () => {
 describe('POST /login', () => {
   test('successfully logs in a user', async () => {
     // You need to ensure a user exists in your test setup for this to pass
-    const mockUser = { username: 'TestUser', password: 'password123' };
+    const mockUser = { username: 'Ned', password: 'password123' };
     bcrypt.compare.mockResolvedValue(true); // Mock bcrypt comparison to succeed
 
     const response = await request(server).post('/login').send(mockUser);
@@ -59,7 +59,7 @@ describe('POST /login', () => {
   });
 
   test('fails to login with incorrect credentials', async () => {
-    const mockUser = { username: 'TestUser', password: 'wrongPassword' };
+    const mockUser = { username: 'ned', password: 'wrongPassword' };
     bcrypt.compare.mockResolvedValue(false); // Mock bcrypt comparison to fail
 
     const response = await request(server).post('/login').send(mockUser);
