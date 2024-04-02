@@ -3,8 +3,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = require('express').Router();
 const User = require('../users/users-model');
-// const uniqueUsername = require('../middleware/unique-username');
-// const usernameExists = require('../middleware/username-exists');
+ const uniqueUsername = require('../middleware/unique-username');
+ //const usernameExists = require('../middleware/username-exists');
+ const validateCrendentials = require('../middleware/validate-crendentials');
+
 const secret = process.env.SECRET || 'the secret';
 const userCredentialsValidation = require('../middleware/restricted');
 function generateToken(user) {
@@ -18,7 +20,7 @@ function generateToken(user) {
   return jwt.sign(payload, secret, options);
 }
 
-router.post('/register', userCredentialsValidation, async (req, res) => {
+router.post('/register',  uniqueUsername,validateCrendentials, async (req, res) => {
   // console.log('Starting user registration...');
   // const errors = validationResult(req);
   // if (!errors.isEmpty()) {
@@ -69,7 +71,7 @@ router.post('/register', userCredentialsValidation, async (req, res) => {
 
 
 
-router.post('/login', userCredentialsValidation, async (req, res) => {
+router.post('/login', userCredentialsValidation,validateCrendentials, async (req, res) => {
   // const errors = validationResult(req);
   // if (!errors.isEmpty()) {
   //   return res.status(400).json({ errors: errors.array() });
