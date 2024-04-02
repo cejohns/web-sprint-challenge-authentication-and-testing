@@ -59,10 +59,11 @@ router.post('/register',  uniqueUsername,validateCrendentials, async (req, res) 
   // }
   try {
     const { username, password } = req.body;
-    const newUser = await User.insert({
+    const newUser = await User.add({
       username,
       password: bcrypt.hashSync(password, 8),
     });
+    console.log('New User:', newUser);
     res.status(201).json(newUser);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -8,7 +8,7 @@ module.exports = function (req, res, next) {
       const usernameExists = false;
   
       if (usernameExists) {
-        res.status(400).json({ message: 'Username already exists' });
+        res.status(400).json({ message: 'Username taken' });
       } else {
         next();
       }
