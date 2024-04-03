@@ -106,7 +106,7 @@ router.post('/login', userCredentialsValidation,validateCrendentials,usernameExi
     const { user } = req; // Assuming the user was attached by usernameExists middleware
 
     if (bcrypt.compareSync(password, user.password)) {
-      res.json({ message: `welcome, ${user.username}`, token: generateToken(user) });
+      res.status(200).json({ message: `welcome, ${user.username}`, token: generateToken(user) });
     } else {
       res.status(401).json({ message: 'invalid credentials' });
     }
