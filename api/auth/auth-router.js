@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const router = require('express').Router();
 const User = require('../users/users-model');
  const uniqueUsername = require('../middleware/unique-username');
- //const usernameExists = require('../middleware/username-exists');
+ const usernameExists = require('../middleware/username-exists');
  const validateCrendentials = require('../middleware/validate-crendentials');
 
 const secret = process.env.SECRET || 'the secret';
@@ -77,7 +77,7 @@ router.post('/register',  uniqueUsername,validateCrendentials, async (req, res) 
 
 
 
-router.post('/login', userCredentialsValidation,validateCrendentials, async (req, res) => {
+router.post('/login', userCredentialsValidation,validateCrendentials,usernameExists, async (req, res) => {
   // const errors = validationResult(req);
   // if (!errors.isEmpty()) {
   //   return res.status(400).json({ errors: errors.array() });
@@ -102,7 +102,9 @@ router.post('/login', userCredentialsValidation,validateCrendentials, async (req
   //   res.status(500).json({ message: 'An error occurred during login.' });
   // }
   try {
-    const { body: { password }, user } = req;
+    const { password } = req.body;
+    const { user } = req; // Assuming the user was attached by usernameExists middleware
+
     if (bcrypt.compareSync(password, user.password)) {
       res.json({ message: `welcome, ${user.username}`, token: generateToken(user) });
     } else {
