@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const router = require('express').Router();
 const User = require('../users/users-model');
  const uniqueUsername = require('../middleware/unique-username');
- const usernameExists = require('../middleware/username-exists');
+ //const usernameExists = require('../middleware/username-exists');
  const validateCrendentials = require('../middleware/validate-crendentials');
 
 const secret = process.env.SECRET || 'the secret';
@@ -77,7 +77,7 @@ router.post('/register',  uniqueUsername,validateCrendentials, async (req, res) 
 
 
 
-router.post('/login',usernameExists, userCredentialsValidation,validateCrendentials, async (req, res) => {
+router.post('/login', userCredentialsValidation,validateCrendentials, async (req, res) => {
   // const errors = validationResult(req);
   // if (!errors.isEmpty()) {
   //   return res.status(400).json({ errors: errors.array() });
