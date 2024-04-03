@@ -10,7 +10,7 @@ module.exports = async function (req, res, next) {
     // Assuming findByUsername is a method that exists and works as intended
     // The use of .first() may depend on your ORM or database querying library, 
     // ensure it's applicable for your scenario
-    const user = await User.findBy(username); 
+    const user = await User.findByUsername(username); 
     if (user) {
       req.user = user; // Attach user to the request for downstream use
       next();
