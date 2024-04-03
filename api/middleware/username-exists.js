@@ -15,7 +15,7 @@ module.exports = async function (req, res, next) {
       req.user = user; // Attach user to the request for downstream use
       next();
     } else {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(401).json({ message: 'User not found' });
     }
   } catch (error) {
     return res.status(500).json({ message: 'Error accessing the database' });
