@@ -8,7 +8,7 @@ const User = require('../users/users-model');
  const validateCrendentials = require('../middleware/validate-crendentials');
 
 const secret = process.env.SECRET || 'the secret';
-const userCredentialsValidation = require('../middleware/restricted');
+//const userCredentialsValidation = require('../middleware/restricted');
 function generateToken(user) {
   const payload = {
     subject: user.id,
@@ -77,7 +77,7 @@ router.post('/register',  uniqueUsername,validateCrendentials, async (req, res) 
 
 
 
-router.post('/login', userCredentialsValidation,validateCrendentials,usernameExists, async (req, res) => {
+router.post('/login', /*userCredentialsValidation,*/validateCrendentials,usernameExists, async (req, res) => {
   // const errors = validationResult(req);
   // if (!errors.isEmpty()) {
   //   return res.status(400).json({ errors: errors.array() });
