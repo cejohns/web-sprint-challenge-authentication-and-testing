@@ -23,6 +23,15 @@ afterAll(() => {
   // Perform cleanup, if necessary
 });
 
+async function getValidToken() {
+  // Replace 'testuser' and 'password' with your test user's credentials
+  const loginResponse = await request(server)
+    .post('/api/auth/login')
+    .send({ username: 'testuser', password: 'password' });
+  
+  return loginResponse.body.token; // Adjust this according to the structure of your login response
+}
+
 describe('POST /register', () => {
  // Test successful user registration
 test('registers a new user successfully', async () => {
@@ -78,10 +87,14 @@ describe('GET /jokes endpoint', () => {
   });
 
   test('GET / - successfully retrieves jokes', async () => {
-    const response = await request(server).get('/');
+    const token = await getValidToken();
+
+    const response = await request(server)
+      .get('/api/jokes')
+      .set('Authorization', `Bearer ${token}`); // Setting the authorization header with the obtained token
+  
     expect(response.statusCode).toBe(200);
-    expect(Array.isArray(response.body)).toBe(true); // Assuming the response is an array of jokes
-    // Additional checks can be made here regarding the length of the array or the structure of a joke object
+    expect(Array.isArray(response.body)).toBe(true);
   });
 });
 
