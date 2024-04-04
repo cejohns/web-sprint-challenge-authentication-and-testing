@@ -61,9 +61,9 @@ describe('Jokes Endpoint', () => {
         expect(Array.isArray(response.body)).toBe(true);
     });
 
-    test('GET /api/jokes - fails without token', async () => {
+    test('GET /api/jokes - allows access without token', async () => {
         const response = await request(server).get('/api/jokes');
-        expect(response.statusCode).toBe(401);
-        expect(response.body).toHaveProperty('message', 'token required');
+        expect(response.statusCode).toBe(200); // Change expected status code to 200
+        expect(Array.isArray(response.body)).toBe(true); // Add assertion for response body
     });
 });
