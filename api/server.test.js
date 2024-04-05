@@ -56,15 +56,18 @@ describe('Auth Endpoints', () => {
 describe('Jokes Endpoint', () => {
     test('GET /api/jokes - successfully retrieves jokes with valid token', async () => {
         const token = await getValidToken();
-        const response = await request(server).get('/api/jokes').set('Authorization', `Bearer ${token}`);
+        const response = await request(server)
+            .get('/api/jokes')
+            .set('Authorization', `Bearer ${token}`);
         expect(response.statusCode).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
     });
 
-    test('GET /api/jokes - fails without token', async () => {
+    test('GET /api/jokes - denies access without token', async () => {
         const response = await request(server).get('/api/jokes');
-        expect(response.statusCode).toBe(401);
-        expect(response.body).toHaveProperty('message', 'token required');
+        expect(response.statusCode).toBe(401); // Expecting access to be denied without a valid token
+        expect(response.body).toHaveProperty('message', 'token required'); // Optional: checking for the specific error message
     });
+    
 });
 

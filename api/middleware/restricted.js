@@ -19,10 +19,10 @@ module.exports = (req, res, next) => {
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
     if (err) {
       // Token is invalid or expired.
-      return res.status(401).json({ message: "token invalid" });
+     res.status(401).json({ message: "token invalid" });
     }else {
         // Token is valid, proceed to the next middleware or route handler.
-    req.user = decoded; // Optional: Attach the decoded token to the request if you want to use it downstream.
+    req.token = decoded; // Optional: Attach the decoded token to the request if you want to use it downstream.
     next();
     }
 
