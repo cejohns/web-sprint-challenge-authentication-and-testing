@@ -1,21 +1,22 @@
 const jwt = require('jsonwebtoken');
 
 // Assuming 'YOUR_SECRET_KEY' is the secret key you used to sign the JWTs.
-const SECRET_KEY = process.env.SECRET || 'the secret';
+const SECRET_KEY = process.env.SECRET || 'shh';
 
 
 
 
 module.exports = (req, res, next) => {
   // Extract the token from the Authorization header.
-  const token = req.headers.authorization; // Conventionally, Authorization: Bearer <token>
+  const authHeader = req.headers.authorization; // Conventionally, Authorization: Bearer <token>
 
   if (!token) {
     // Token is missing from the Authorization header.
-     res.status(401).json({ message: "token required" });
-  }else{
-    next();
+    return res.status(401).json({ message: "token required" });
   }
+  
+// Correctly extract the token by removing 'Bearer ' prefix
+const token = authHeader.split(' ')[1];
 
   // Verify the token.
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
