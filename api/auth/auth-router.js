@@ -7,7 +7,7 @@ const User = require('../users/users-model');
  const usernameExists = require('../middleware/username-exists');
  const validateCrendentials = require('../middleware/validate-crendentials');
 
-const secret = process.env.SECRET || 'shh';
+const secret = process.env.SECRET || 'the secret';
 //const userCredentialsValidation = require('../middleware/restricted');
 function generateToken(user) {
   const payload = {

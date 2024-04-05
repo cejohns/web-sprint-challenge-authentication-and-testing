@@ -1,4 +1,3 @@
-
 const jwt = require('jsonwebtoken');
 
 // Assuming 'YOUR_SECRET_KEY' is the secret key you used to sign the JWTs.
