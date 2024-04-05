@@ -1,11 +1,13 @@
 const request = require('supertest');
 const server = require('../api/server'); // Adjust the path to match your actual server file location
 const db = require('../data/dbConfig'); // Ensure this points to your database configuration
-
+//const bcrypt = require('bcrypt');
 // Helper function to reset the users table before each test
 async function resetUsersDatabase() {
     await db('users').truncate();
 }
+
+
 
 // Helper function to create a test user and get a token
 async function getValidToken() {
@@ -54,16 +56,15 @@ describe('Auth Endpoints', () => {
 describe('Jokes Endpoint', () => {
     test('GET /api/jokes - successfully retrieves jokes with valid token', async () => {
         const token = await getValidToken();
-        const response = await request(server)
-            .get('/api/jokes')
-            .set('Authorization', `Bearer ${token}`);
+        const response = await request(server).get('/api/jokes').set('Authorization', `Bearer ${token}`);
         expect(response.statusCode).toBe(200);
         expect(Array.isArray(response.body)).toBe(true);
     });
 
-    test('GET /api/jokes - allows access without token', async () => {
+    test('GET /api/jokes - fails without token', async () => {
         const response = await request(server).get('/api/jokes');
-        expect(response.statusCode).toBe(200); // Change expected status code to 200
-        expect(Array.isArray(response.body)).toBe(true); // Add assertion for response body
+        expect(response.statusCode).toBe(401);
+        expect(response.body).toHaveProperty('message', 'token required');
     });
 });
+
