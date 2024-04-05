@@ -12,7 +12,9 @@ module.exports = (req, res, next) => {
 
   if (!token) {
     // Token is missing from the Authorization header.
-    return res.status(401).json({ message: "token required" });
+     res.status(401).json({ message: "token required" });
+  }else{
+    next();
   }
 
   // Verify the token.

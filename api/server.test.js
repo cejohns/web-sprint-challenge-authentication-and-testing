@@ -60,7 +60,8 @@ describe('Jokes Endpoint', () => {
             .get('/api/jokes')
             .set('Authorization', `Bearer ${token}`);
         expect(response.statusCode).toBe(200);
-        expect(Array.isArray(response.body)).toBe(true);
+        // Updated to check if response.body contains jokes, considering the response structure
+        expect(response.body.some(joke => typeof joke.joke === 'string')).toBe(true);
     });
 
     test('GET /api/jokes - denies access without token', async () => {
