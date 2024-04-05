@@ -2,7 +2,7 @@
 const jwt = require('jsonwebtoken');
 
 // Assuming 'YOUR_SECRET_KEY' is the secret key you used to sign the JWTs.
-const SECRET_KEY = process.env.SECRET || 'the secret';
+const SECRET_KEY = process.env.SECRET || 'ssh';
 
 
 
