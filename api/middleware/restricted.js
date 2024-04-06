@@ -7,25 +7,29 @@ const SECRET_KEY = process.env.SECRET || 'the secret';
 
 
 module.exports = (req, res, next) => {
-  // Extract the token from the Authorization header.
-  const token = req.headers.authorization; // Conventionally, Authorization: Bearer <token>
+  let token;
+  if (req.headers.authorization) {
+    // Check if token is prefixed with 'Bearer '
+    const parts = req.headers.authorization.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      token = parts[1];
+    } else {
+      token = req.headers.authorization;
+    }
+  }
 
   if (!token) {
-    // Token is missing from the Authorization header.
     return res.status(401).json({ message: "token required" });
   }
 
-  // Verify the token.
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
     if (err) {
-      // Token is invalid or expired.
-     res.status(401).json({ message: "token invalid" });
-    }else {
-        // Token is valid, proceed to the next middleware or route handler.
-    req.token = decoded; // Optional: Attach the decoded token to the request if you want to use it downstream.
-    next();
+      res.status(401).json({ message: "token invalid" });
+    } else {
+      req.token = decoded;
+      next();
     }
+  });
 
   
-  });
-};
+  };
