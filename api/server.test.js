@@ -1,6 +1,8 @@
 const request = require('supertest');
 const server = require('../api/server'); // Adjust the path to match your actual server file location
 const db = require('../data/dbConfig'); // Ensure this points to your database configuration
+const knex = require('knex');
+
 //const bcrypt = require('bcrypt');
 // Helper function to reset the users table before each test
 async function resetUsersDatabase() {
@@ -20,6 +22,10 @@ async function getValidToken() {
 beforeEach(async () => {
     await resetUsersDatabase();
 });
+
+beforeAll(async () => {
+    await knex.migrate.latest(); // Run the migrations
+  });
 
 describe('Auth Endpoints', () => {
     test('POST /api/auth/register - successfully registers a user', async () => {
